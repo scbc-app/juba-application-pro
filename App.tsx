@@ -117,26 +117,8 @@ const App = () => {
 
   const { submissionStatus, setSubmissionStatus, isSyncing, addToQueue } = useOfflineSync(appScriptUrl, showToast, () => fetchHistory(true));
   
+  // FIX: handleNavigate now strictly handles VIEW navigation
   const handleNavigate = (module: string) => {
-    // Check if this is an inspection module that might have a draft
-    const inspectionModules = ['general', 'petroleum', 'petroleum_v2', 'acid'];
-    
-    if (inspectionModules.includes(module)) {
-        const draftKey = `sc_draft_${module}`;
-        const draft = localStorage.getItem(draftKey);
-        
-        if (draft) {
-            setPendingModule(module);
-            setHasExistingDraft(true);
-            setIsStartModalOpen(true);
-            return;
-        }
-        
-        setActiveModule(module);
-        startFreshInspection(module);
-        return;
-    }
-
     if (module.startsWith('request:start_inspection')) {
         if (isSystemLocked) {
             showToast("Action Restricted: System is in View-Only mode.", "error");
@@ -162,8 +144,27 @@ const App = () => {
         });
         return;
     }
+
     setActiveModule(module);
     setViewMode('dashboard');
+  };
+
+  // NEW: Logical handler for initiating a new inspection (checks for drafts)
+  const handleOpenInspectionFlow = (module: string) => {
+    if (isSystemLocked) {
+        showToast("Action Restricted: System is in View-Only mode.", "error");
+        return;
+    }
+    const draftKey = `sc_draft_${module}`;
+    const draft = localStorage.getItem(draftKey);
+    
+    if (draft) {
+        setPendingModule(module);
+        setHasExistingDraft(true);
+        setIsStartModalOpen(true);
+    } else {
+        startFreshInspection(module);
+    }
   };
 
   const { notifications, handleMarkNotificationRead, handleDismissNotification, handleClearAllNotifications, handleGlobalAcknowledge } = useNotifications(appScriptUrl, currentUser, showToast);
@@ -267,7 +268,6 @@ const App = () => {
 
     if (!navigator.onLine) {
         addToQueue(payload);
-        // Clear draft on success/queue
         localStorage.removeItem(`sc_draft_${activeModule}`);
         setSubmissionStatus('offline_saved');
         setTimeout(() => { setSubmissionStatus('idle'); setViewMode('dashboard'); }, 3500);
@@ -277,18 +277,13 @@ const App = () => {
     try {
         await fetch(appScriptUrl, { method: 'POST', body: JSON.stringify(payload), mode: 'no-cors' });
         setSubmissionStatus('success');
-        
-        // Clear draft on success
         localStorage.removeItem(`sc_draft_${activeModule}`);
-
-        // Trigger AI Analysis
         try {
             const analysis = await analyzeInspection(formData);
             setAiAnalysisResult(analysis);
         } catch (aiErr) {
             setAiAnalysisResult("AI analysis skipped due to connectivity or processing error.");
         }
-
         fetchHistory(true); 
     } catch (error) {
         console.error("Submission error", error);
@@ -437,10 +432,10 @@ const App = () => {
                       {activeModule === 'library' && <LibraryView />}
                       {(activeModule === 'settings' && isAdmin) && <SettingsView settings={settings} setSettings={setSettings} appScriptUrl={appScriptUrl} setAppScriptUrl={setAppScriptUrl} handleSaveSettings={handleSaveSettings} isSavingSettings={isSavingSettings} showToast={showToast} user={currentUser} />}
                       {(activeModule === 'maintenance' && isSuperAdmin) && <MaintenanceView user={currentUser} appScriptUrl={appScriptUrl} settings={settings} onSettingsUpdate={(s) => setSettings(p => ({...p, ...s}))} showToast={showToast} onRefreshSubscription={refreshSubscription} subscription={subscription} history={subHistory} />}
-                      {activeModule === 'general' && <GeneralDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleNavigate('general')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
-                      {activeModule === 'petroleum' && <PetroleumDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleNavigate('petroleum')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
-                      {activeModule === 'petroleum_v2' && <PetroleumV2Dashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleNavigate('petroleum_v2')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
-                      {activeModule === 'acid' && <AcidDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleNavigate('acid')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
+                      {activeModule === 'general' && <GeneralDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleOpenInspectionFlow('general')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
+                      {activeModule === 'petroleum' && <PetroleumDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleOpenInspectionFlow('petroleum')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
+                      {activeModule === 'petroleum_v2' && <PetroleumV2Dashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleOpenInspectionFlow('petroleum_v2')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
+                      {activeModule === 'acid' && <AcidDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleOpenInspectionFlow('acid')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
                       {(activeModule === 'users' && isAdmin) && <UserManagementView currentUser={currentUser} appScriptUrl={appScriptUrl} showToast={showToast} validationLists={validationLists} settings={settings} />}
                       {activeModule === 'support' && <SupportView appScriptUrl={appScriptUrl} currentUser={currentUser} showToast={showToast} settings={settings} validationLists={validationLists} />}
                       {activeModule === 'track_requests' && <RequestTrackingView appScriptUrl={appScriptUrl} currentUser={currentUser} showToast={showToast} onRequestNew={() => setIsRequestModalOpen(true)} />}

@@ -3,7 +3,7 @@ import { InspectionData, InspectionStatus } from "../types";
 import { INSPECTION_ITEMS } from "../constants";
 
 export const analyzeInspection = async (data: InspectionData): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: "PLACEHOLDER_FOR_NOW" });
   try {
     const failedItems = INSPECTION_ITEMS.filter(item => 
       data[item.id] === InspectionStatus.BAD
