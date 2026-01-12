@@ -1,6 +1,14 @@
+// Use environment variables for security
+// The actual URL should be in .env.local file, not hardcoded here
+export const PRE_CONFIGURED_SCRIPT_URL = import.meta.env.VITE_GOOGLE_SCRIPT_URL 
+  || ''; // Empty fallback for security
 
-// Paste your Google Apps Script URL here to auto-connect the app
-export const PRE_CONFIGURED_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZRcAVA4eauiexlSe81T-iHhq8tzrvbP7k11D7FT7Z-_Pg3eVCVBK3DXyTBAfGCe9-NQ/exec'; 
+export const GOOGLE_SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID 
+  || ''; // Empty fallback for security
+
+// Optional: Add a security token (for Google Apps Script validation)
+export const API_SECURITY_TOKEN = import.meta.env.VITE_API_SECURITY_TOKEN 
+  || '';
 
 export const CACHE_TTL = 300000; // 5 minutes
 
