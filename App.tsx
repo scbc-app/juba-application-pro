@@ -31,6 +31,7 @@ import RequestInspectionModal from './components/ui/RequestInspectionModal';
 import OnboardingWizard from './components/ui/OnboardingWizard'; 
 import SystemTour from './components/ui/SystemTour'; 
 import InstallPwaPrompt from './components/ui/InstallPwaPrompt';
+import Sidebar from './components/layout/Sidebar';
 
 // Views
 import LoginView from './views/LoginView';
@@ -64,6 +65,7 @@ const App = () => {
   const [activeModule, setActiveModule] = useState('overview'); 
   const [viewMode, setViewMode] = useState<'dashboard' | 'form'>('dashboard');
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error' | 'info' | 'warning'} | null>(null);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
@@ -118,25 +120,6 @@ const App = () => {
   const { submissionStatus, setSubmissionStatus, isSyncing, addToQueue } = useOfflineSync(appScriptUrl, showToast, () => fetchHistory(true));
   
   const handleNavigate = (module: string) => {
-    // Check if this is an inspection module that might have a draft
-    const inspectionModules = ['general', 'petroleum', 'petroleum_v2', 'acid'];
-    
-    if (inspectionModules.includes(module)) {
-        const draftKey = `sc_draft_${module}`;
-        const draft = localStorage.getItem(draftKey);
-        
-        if (draft) {
-            setPendingModule(module);
-            setHasExistingDraft(true);
-            setIsStartModalOpen(true);
-            return;
-        }
-        
-        setActiveModule(module);
-        startFreshInspection(module);
-        return;
-    }
-
     if (module.startsWith('request:start_inspection')) {
         if (isSystemLocked) {
             showToast("Action Restricted: System is in View-Only mode.", "error");
@@ -162,8 +145,27 @@ const App = () => {
         });
         return;
     }
+
     setActiveModule(module);
     setViewMode('dashboard');
+    setIsSidebarOpen(false);
+  };
+
+  const handleOpenInspectionFlow = (module: string) => {
+    if (isSystemLocked) {
+        showToast("Action Restricted: System is in View-Only mode.", "error");
+        return;
+    }
+    const draftKey = `sc_draft_${module}`;
+    const draft = localStorage.getItem(draftKey);
+    
+    if (draft) {
+        setPendingModule(module);
+        setHasExistingDraft(true);
+        setIsStartModalOpen(true);
+    } else {
+        startFreshInspection(module);
+    }
   };
 
   const { notifications, handleMarkNotificationRead, handleDismissNotification, handleClearAllNotifications, handleGlobalAcknowledge } = useNotifications(appScriptUrl, currentUser, showToast);
@@ -267,7 +269,6 @@ const App = () => {
 
     if (!navigator.onLine) {
         addToQueue(payload);
-        // Clear draft on success/queue
         localStorage.removeItem(`sc_draft_${activeModule}`);
         setSubmissionStatus('offline_saved');
         setTimeout(() => { setSubmissionStatus('idle'); setViewMode('dashboard'); }, 3500);
@@ -277,18 +278,13 @@ const App = () => {
     try {
         await fetch(appScriptUrl, { method: 'POST', body: JSON.stringify(payload), mode: 'no-cors' });
         setSubmissionStatus('success');
-        
-        // Clear draft on success
         localStorage.removeItem(`sc_draft_${activeModule}`);
-
-        // Trigger AI Analysis
         try {
             const analysis = await analyzeInspection(formData);
             setAiAnalysisResult(analysis);
         } catch (aiErr) {
             setAiAnalysisResult("AI analysis skipped due to connectivity or processing error.");
         }
-
         fetchHistory(true); 
     } catch (error) {
         console.error("Submission error", error);
@@ -345,7 +341,7 @@ const App = () => {
   }
 
   if (currentUser && currentUser.needsSetup) {
-      return <OnboardingWizard user={currentUser} appScriptUrl={appScriptUrl} onComplete={handleOnboardingComplete} />;
+      return <OnboardingWizard user={currentUser} appScriptUrl={appScriptUrl} onComplete={handleOnboardingComplete} onLogout={handleLogout} />;
   }
 
   return (
@@ -372,6 +368,17 @@ const App = () => {
         onResume={handleResumeDraft} 
         hasDraft={hasExistingDraft} 
         moduleName={pendingModule || ''} 
+      />
+
+      <Sidebar 
+          isOpen={isSidebarOpen} 
+          onClose={() => setIsSidebarOpen(false)} 
+          activeModule={activeModule} 
+          onSelectModule={handleNavigate} 
+          settings={settings} 
+          user={currentUser} 
+          onLogout={handleLogout} 
+          subscription={subscription} 
       />
 
       <div className="relative z-10 min-h-screen flex flex-col">
@@ -403,9 +410,17 @@ const App = () => {
                           <svg className="w-5 h-5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"></path></svg>
                           <span className="text-[10px] font-bold uppercase tracking-widest ml-1 hidden sm:inline">Back</span>
                       </button>
-                  ) : <div className="w-10"></div>}
+                  ) : (
+                    <button 
+                      id="sidebar-toggle"
+                      onClick={() => setIsSidebarOpen(true)} 
+                      className="p-2 text-slate-900 hover:bg-slate-50 rounded-lg transition-all flex items-center"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                  )}
               </div>
-              <button onClick={() => { setActiveModule('overview'); setViewMode('dashboard'); }} className="flex flex-col items-center hover:opacity-70 transition-opacity">
+              <button onClick={() => { setActiveModule('overview'); setViewMode('dashboard'); }} className="flex flex-col items-center hover:opacity-70 transition-opacity absolute left-1/2 -translate-x-1/2">
                   <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-none uppercase">{settings.companyName || 'SafetyCheck Pro'}</h1>
                   <span className="text-[7px] font-bold text-slate-400 tracking-[0.3em] mt-1 uppercase">Fleet Portal</span>
               </button>
@@ -437,10 +452,10 @@ const App = () => {
                       {activeModule === 'library' && <LibraryView />}
                       {(activeModule === 'settings' && isAdmin) && <SettingsView settings={settings} setSettings={setSettings} appScriptUrl={appScriptUrl} setAppScriptUrl={setAppScriptUrl} handleSaveSettings={handleSaveSettings} isSavingSettings={isSavingSettings} showToast={showToast} user={currentUser} />}
                       {(activeModule === 'maintenance' && isSuperAdmin) && <MaintenanceView user={currentUser} appScriptUrl={appScriptUrl} settings={settings} onSettingsUpdate={(s) => setSettings(p => ({...p, ...s}))} showToast={showToast} onRefreshSubscription={refreshSubscription} subscription={subscription} history={subHistory} />}
-                      {activeModule === 'general' && <GeneralDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleNavigate('general')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
-                      {activeModule === 'petroleum' && <PetroleumDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleNavigate('petroleum')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
-                      {activeModule === 'petroleum_v2' && <PetroleumV2Dashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleNavigate('petroleum_v2')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
-                      {activeModule === 'acid' && <AcidDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleNavigate('acid')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
+                      {activeModule === 'general' && <GeneralDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleOpenInspectionFlow('general')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
+                      {activeModule === 'petroleum' && <PetroleumDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleOpenInspectionFlow('petroleum')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
+                      {activeModule === 'petroleum_v2' && <PetroleumV2Dashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleOpenInspectionFlow('petroleum_v2')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
+                      {activeModule === 'acid' && <AcidDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleOpenInspectionFlow('acid')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
                       {(activeModule === 'users' && isAdmin) && <UserManagementView currentUser={currentUser} appScriptUrl={appScriptUrl} showToast={showToast} validationLists={validationLists} settings={settings} />}
                       {activeModule === 'support' && <SupportView appScriptUrl={appScriptUrl} currentUser={currentUser} showToast={showToast} settings={settings} validationLists={validationLists} />}
                       {activeModule === 'track_requests' && <RequestTrackingView appScriptUrl={appScriptUrl} currentUser={currentUser} showToast={showToast} onRequestNew={() => setIsRequestModalOpen(true)} />}

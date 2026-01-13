@@ -6,9 +6,10 @@ interface OnboardingWizardProps {
     user: User;
     appScriptUrl: string;
     onComplete: (updatedUser: User) => void;
+    onLogout?: () => void; // Added onLogout prop to handle the escape hatch
 }
 
-const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, appScriptUrl, onComplete }) => {
+const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, appScriptUrl, onComplete, onLogout }) => {
     const [step, setStep] = useState(0); // 0: Identity, 1: Security, 2: Notifications, 3: Success
     const [isLoading, setIsLoading] = useState(false);
     
@@ -148,13 +149,20 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, appScriptUrl,
                                     />
                                 </div>
                                 {error && <div className="p-2 bg-red-50 text-red-600 text-[9px] font-bold rounded-lg border border-red-100">{error}</div>}
-                                <div className="pt-2 flex flex-col gap-2">
+                                <div className="pt-2 flex flex-col gap-1 sm:gap-2">
                                     <button type="submit" className="w-full py-3.5 md:py-4 bg-slate-900 hover:bg-black text-white font-black rounded-xl uppercase tracking-widest text-[10px] shadow-lg active:scale-95 transition-all">
                                         Update Details
                                     </button>
-                                    <button type="button" onClick={handleSkip} className="w-full py-3 text-slate-400 hover:text-slate-600 font-bold text-[9px] uppercase tracking-[0.25em] transition-colors">
-                                        Setup Later
-                                    </button>
+                                    <div className="flex flex-row gap-2">
+                                        <button type="button" onClick={handleSkip} className="flex-1 py-3 text-slate-400 hover:text-slate-600 font-bold text-[9px] uppercase tracking-[0.25em] transition-colors border border-slate-100 rounded-xl">
+                                            Setup Later
+                                        </button>
+                                        {onLogout && (
+                                            <button type="button" onClick={onLogout} className="flex-1 py-3 text-rose-500 hover:text-rose-600 font-bold text-[9px] uppercase tracking-[0.25em] transition-colors border border-rose-50 rounded-xl bg-rose-50/30">
+                                                Sign Out
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </form>
                         </div>
