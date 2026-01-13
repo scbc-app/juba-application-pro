@@ -31,7 +31,6 @@ import RequestInspectionModal from './components/ui/RequestInspectionModal';
 import OnboardingWizard from './components/ui/OnboardingWizard'; 
 import SystemTour from './components/ui/SystemTour'; 
 import InstallPwaPrompt from './components/ui/InstallPwaPrompt';
-import Sidebar from './components/layout/Sidebar';
 
 // Views
 import LoginView from './views/LoginView';
@@ -65,7 +64,6 @@ const App = () => {
   const [activeModule, setActiveModule] = useState('overview'); 
   const [viewMode, setViewMode] = useState<'dashboard' | 'form'>('dashboard');
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error' | 'info' | 'warning'} | null>(null);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
@@ -148,7 +146,6 @@ const App = () => {
 
     setActiveModule(module);
     setViewMode('dashboard');
-    setIsSidebarOpen(false);
   };
 
   const handleOpenInspectionFlow = (module: string) => {
@@ -370,17 +367,6 @@ const App = () => {
         moduleName={pendingModule || ''} 
       />
 
-      <Sidebar 
-          isOpen={isSidebarOpen} 
-          onClose={() => setIsSidebarOpen(false)} 
-          activeModule={activeModule} 
-          onSelectModule={handleNavigate} 
-          settings={settings} 
-          user={currentUser} 
-          onLogout={handleLogout} 
-          subscription={subscription} 
-      />
-
       <div className="relative z-10 min-h-screen flex flex-col">
           <div className="no-print">
             {settings.maintenanceMode && (
@@ -405,19 +391,11 @@ const App = () => {
 
           <header className="bg-white border-b border-gray-100 sticky top-0 z-40 px-4 py-2 flex items-center justify-between h-14 no-print">
               <div className="flex items-center gap-1 sm:gap-2">
-                  {!isAtRoot ? (
+                  {!isAtRoot && (
                       <button onClick={() => { setActiveModule('overview'); setViewMode('dashboard'); }} title="Back to Overview" className="p-2 text-slate-900 hover:bg-slate-50 rounded-lg transition-all flex items-center group">
                           <svg className="w-5 h-5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"></path></svg>
                           <span className="text-[10px] font-bold uppercase tracking-widest ml-1 hidden sm:inline">Back</span>
                       </button>
-                  ) : (
-                    <button 
-                      id="sidebar-toggle"
-                      onClick={() => setIsSidebarOpen(true)} 
-                      className="p-2 text-slate-900 hover:bg-slate-50 rounded-lg transition-all flex items-center"
-                    >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                    </button>
                   )}
               </div>
               <button onClick={() => { setActiveModule('overview'); setViewMode('dashboard'); }} className="flex flex-col items-center hover:opacity-70 transition-opacity absolute left-1/2 -translate-x-1/2">
