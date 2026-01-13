@@ -404,7 +404,7 @@ const App = () => {
               </button>
               <div className="flex items-center gap-1">
                   <NotificationCenter id="notification-bell" notifications={notifications} onMarkAsRead={(id) => handleMarkNotificationRead(id, handleNavigate)} onDismiss={handleDismissNotification} onClearAll={handleClearAllNotifications} onAcknowledge={handleGlobalAcknowledge} canAcknowledge={isAdmin} />
-                  <button onClick={() => setIsProfileModalOpen(true)} className={`p-2 transition-colors ${isProfileModalOpen ? 'text-slate-900 bg-slate-50 rounded-full' : 'text-slate-400 hover:text-slate-600'}`}>
+                  <button id="profile-trigger" onClick={() => setIsProfileModalOpen(true)} className={`p-2 transition-colors ${isProfileModalOpen ? 'text-slate-900 bg-slate-50 rounded-full' : 'text-slate-400 hover:text-slate-600'}`}>
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                   </button>
               </div>

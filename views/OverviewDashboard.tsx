@@ -279,7 +279,7 @@ const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate, userR
     return (
         <div className="max-w-5xl mx-auto py-8 sm:py-12 flex flex-col items-center justify-center min-h-[calc(100vh-140px)] overflow-hidden">
             <div className="w-full space-y-24 sm:space-y-32">
-                <section className="w-full animate-fadeIn">
+                <section id="system-mgmt-section" className="w-full animate-fadeIn">
                     <SectionHeader label="System Management" />
                     <div className="grid grid-cols-4 gap-x-4 gap-y-16 sm:gap-y-20">
                         <LauncherTile id="maintenance" label="Security" isLocked={isLocked} isForcedLock={!isSuperAdmin} onNavigate={onNavigate} icon={<SecurityIcon />} />
@@ -289,7 +289,7 @@ const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate, userR
                     </div>
                 </section>
 
-                <section className="w-full animate-fadeIn">
+                <section id="inspection-forms-section" className="w-full animate-fadeIn">
                     <SectionHeader label="Inspection Forms" />
                     <div className="grid grid-cols-4 sm:grid-cols-5 gap-x-4 gap-y-16 sm:gap-y-20">
                         <LauncherTile id="general" label="General Inspection" isInspectionModule={true} isLocked={isLocked} onNavigate={onNavigate} icon={<InspectionChecklistIcon />} />
