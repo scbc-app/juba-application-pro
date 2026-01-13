@@ -3,12 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="theme-color" content="#1e3a8a" />
     <meta name="description" content="Professional Truck & Trailer Inspection App" />
     
-    <!-- iOS / Mobile Web App Capable Meta Tags -->
+    <!-- Basic favicon -->
+    <link rel="icon" href="/juba-application-pro/favicon.ico" type="image/x-icon">
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/juba-application-pro/manifest.json">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="/juba-application-pro/apple-touch-icon.png">
+    
+    <!-- iOS Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="SafetyCheck" />
     
     <title>SafetyCheck Pro</title>
@@ -16,7 +25,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts - Unified Inter stack with full weight range -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -25,14 +34,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-      /* Force Inter globally on every single element to ensure total consistency */
       * {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
 
-      /* Ensure form elements inherit the global font properly */
       input, select, textarea, button {
         font-family: inherit !important;
       }
@@ -62,7 +69,6 @@
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-      /* Mobile Optimization: Prevent auto-zoom on inputs */
       @media screen and (max-width: 768px) {
         input, select, textarea {
           font-size: 16px !important;
@@ -70,7 +76,6 @@
       }
     </style>
     
-    <!-- FIXED: Use ./index.tsx since files are in root directory -->
     <script type="module" src="./index.tsx"></script>
     
   </head>

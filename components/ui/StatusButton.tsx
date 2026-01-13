@@ -14,15 +14,17 @@ const StatusButton: React.FC<{label: string, status: InspectionStatus, current: 
   return (
     <button 
       onClick={onClick} 
-      className={`relative py-3 px-1 rounded-xl border font-black text-[9px] sm:text-[10px] transition-all flex flex-col items-center gap-1.5 flex-1 min-w-0 ${colors[colorClass]} ${isSelected ? 'z-10 scale-[1.02]' : 'shadow-sm opacity-80 hover:opacity-100'}`}
+      className={`relative py-2.5 px-0.5 rounded-xl border font-black text-[8px] sm:text-[10px] transition-all flex flex-col items-center justify-center gap-1 flex-1 min-w-0 ${colors[colorClass]} ${isSelected ? 'z-10 scale-[1.02]' : 'shadow-sm opacity-90 hover:opacity-100'}`}
     >
-      <div className="h-4 flex items-center justify-center">
+      <div className="h-4 flex items-center justify-center pointer-events-none">
         {status === InspectionStatus.GOOD && <span className="text-sm">✓</span>}
         {status === InspectionStatus.BAD && <span className="text-sm">✕</span>}
         {status === InspectionStatus.ATTENTION && <span className="text-sm">!</span>}
         {status === InspectionStatus.NIL && <span className="text-sm">Ø</span>}
       </div>
-      <span className="uppercase tracking-widest truncate w-full px-1">{label}</span>
+      <span className="uppercase tracking-tighter sm:tracking-widest truncate w-full px-0.5 text-center pointer-events-none">
+        {label === 'Needs Attention' ? 'Review' : label}
+      </span>
     </button>
   );
 };

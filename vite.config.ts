@@ -8,25 +8,40 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
-      manifest: {
-        name: 'SafetyCheck Pro',
-        short_name: 'SafetyCheck',
-        description: 'Professional Truck & Trailer Inspection App',
-        theme_color: '#1e3a8a',
-        background_color: '#ffffff',
-        display: 'standalone',
-        orientation: 'portrait',
-        icons: [
+      includeAssets: [
+        'favicon.ico',
+        'favicon-16x16.png',
+        'favicon-32x32.png',
+        'apple-touch-icon.png',
+        'safari-pinned-tab.svg',
+        'android-chrome-192x192.png',
+        'android-chrome-512x512.png'
+      ],
+      manifest: false, // Disable Vite's built-in manifest
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
+        runtimeCaching: [
           {
-            src: 'https://cdn-icons-png.flaticon.com/512/716/716766.png',
-            sizes: '192x192',
-            type: 'image/png'
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              }
+            }
           },
           {
-            src: 'https://cdn-icons-png.flaticon.com/512/716/716766.png',
-            sizes: '512x512',
-            type: 'image/png'
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              }
+            }
           }
         ]
       }
