@@ -6,8 +6,8 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    // Enable live updates from your deployed URL
-    // url: 'https://your-deployed-app-url.com'  // Uncomment when deployed
+    // Live updates from deployed GitHub Pages
+    url: 'https://scbc-app.github.io/juba-application-pro'
   },
   plugins: {
     SplashScreen: {
