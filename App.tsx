@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { INITIAL_DATA, InspectionData, User } from './types';
 import { 
@@ -71,6 +70,9 @@ const App = () => {
   const [lastSubmittedData, setLastSubmittedData] = useState<InspectionData | null>(null);
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
 
+  // Prefill state for Support View
+  const [supportPrefill, setSupportPrefill] = useState<{subject: string, description: string} | null>(null);
+
   // Draft Management State
   const [isStartModalOpen, setIsStartModalOpen] = useState(false);
   const [pendingModule, setPendingModule] = useState<string | null>(null);
@@ -117,7 +119,19 @@ const App = () => {
 
   const { submissionStatus, setSubmissionStatus, isSyncing, addToQueue } = useOfflineSync(appScriptUrl, showToast, () => fetchHistory(true));
   
-  const handleNavigate = (module: string) => {
+  const handleNavigate = async (module: string) => {
+    // Special case for requesting info about integrated solutions
+    if (module.startsWith('support:info:')) {
+        const solutionName = module.replace('support:info:', '');
+        setSupportPrefill({
+            subject: `Inquiry: ${solutionName} Module`,
+            description: `I would like to request more information about integrating the ${solutionName} module into my current workflow. This module is not yet part of my application access.`
+        });
+        setActiveModule('support');
+        setViewMode('dashboard');
+        return;
+    }
+
     if (module.startsWith('request:start_inspection')) {
         if (isSystemLocked) {
             showToast("Action Restricted: System is in View-Only mode.", "error");
@@ -142,6 +156,11 @@ const App = () => {
             requestId: parts[0].split('-')[1]
         });
         return;
+    }
+
+    // Reset support prefill when navigating normally
+    if (module !== 'support') {
+        setSupportPrefill(null);
     }
 
     setActiveModule(module);
@@ -435,7 +454,7 @@ const App = () => {
                       {activeModule === 'petroleum_v2' && <PetroleumV2Dashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleOpenInspectionFlow('petroleum_v2')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
                       {activeModule === 'acid' && <AcidDashboard userRole={currentUser.role} stats={stats} startNewInspection={() => handleOpenInspectionFlow('acid')} fetchHistory={fetchHistory} isLoadingHistory={isLoadingHistory} historyList={historyList} onViewReport={handleViewReport} onPrint={() => {}} isLocked={isSystemLocked} lockReason={lockInfo.reason} maintenanceMessage={settings.maintenanceMessage} />}
                       {(activeModule === 'users' && isAdmin) && <UserManagementView currentUser={currentUser} appScriptUrl={appScriptUrl} showToast={showToast} validationLists={validationLists} settings={settings} />}
-                      {activeModule === 'support' && <SupportView appScriptUrl={appScriptUrl} currentUser={currentUser} showToast={showToast} settings={settings} validationLists={validationLists} />}
+                      {activeModule === 'support' && <SupportView appScriptUrl={appScriptUrl} currentUser={currentUser} showToast={showToast} settings={settings} validationLists={validationLists} prefillData={supportPrefill} onPrefillConsumed={() => setSupportPrefill(null)} />}
                       {activeModule === 'track_requests' && <RequestTrackingView appScriptUrl={appScriptUrl} currentUser={currentUser} showToast={showToast} onRequestNew={() => setIsRequestModalOpen(true)} />}
                       {activeModule === 'registry' && <FleetRegistryView appScriptUrl={appScriptUrl} validationLists={validationLists} onRefresh={() => fetchHistory(true)} showToast={showToast} isLocked={isSystemLocked} />}
                   </div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { InspectionData } from '../types';
 
@@ -43,21 +42,6 @@ const InspectionChecklistIcon = () => (
     </RefinedIcon>
 );
 
-const HeavyHaulageIcon = () => (
-    <RefinedIcon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M2 17h20" strokeWidth="1.5" />
-            <path d="M4 17V9a2 2 0 012-2h4a2 2 0 012 2v8" />
-            <rect x="12" y="11" width="10" height="6" rx="1" />
-            <circle cx="6" cy="18" r="2" fill="currentColor" stroke="none" />
-            <circle cx="10" cy="18" r="2" fill="currentColor" stroke="none" />
-            <circle cx="15" cy="18" r="2" fill="currentColor" stroke="none" />
-            <circle cx="19" cy="18" r="2" fill="currentColor" stroke="none" />
-            <path d="M12 7l4-4h6v4h-6" opacity="0.4" />
-        </svg>
-    </RefinedIcon>
-);
-
 const SecurityIcon = () => (
     <RefinedIcon>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -70,16 +54,15 @@ const SecurityIcon = () => (
     </RefinedIcon>
 );
 
+// Standardized Staff Icon to match HR & Payroll (as requested)
 const StaffIcon = () => (
     <RefinedIcon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <circle cx="12" cy="12" r="10.5" />
-            <circle cx="12" cy="10" r="2.8" fill="currentColor" stroke="none" />
-            <path d="M7 18.5c0-2.8 2.2-5 5-5s5 2.2 5 5" fill="currentColor" stroke="none" />
-            <circle cx="7.5" cy="12" r="2.2" fill="currentColor" stroke="none" opacity="0.6" />
-            <path d="M4 17.5c0-1.8 1.5-3.2 3.5-3.2s3.5 1.4 3.5 3.2" fill="currentColor" stroke="none" opacity="0.6" />
-            <circle cx="16.5" cy="12" r="2.2" fill="currentColor" stroke="none" opacity="0.6" />
-            <path d="M13 17.5c0-1.8 1.5-3.2 3.5-3.2s3.5 1.4 3.5 3.2" fill="currentColor" stroke="none" opacity="0.6" />
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            <rect x="15" y="14" width="7" height="4" rx="1" strokeWidth="1" opacity="0.4" />
         </svg>
     </RefinedIcon>
 );
@@ -100,60 +83,6 @@ const RegistryIcon = () => (
             <path d="M7 8h10M7 12h10M7 16h6" opacity="0.3" />
             <circle cx="17" cy="16" r="3" strokeWidth="1.5" />
             <path d="M17 14.5v3" />
-        </svg>
-    </RefinedIcon>
-);
-
-const IncidentIcon = () => (
-    <RefinedIcon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-            <line x1="12" y1="9" x2="12" y2="13" strokeWidth="2" />
-            <line x1="12" y1="17" x2="12.01" y2="17" strokeWidth="3" />
-        </svg>
-    </RefinedIcon>
-);
-
-const WasteIcon = () => (
-    <RefinedIcon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-            <path d="M3 6h18" />
-            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-            <path d="M10 11v6" />
-            <path d="M14 11v6" />
-        </svg>
-    </RefinedIcon>
-);
-
-const JourneyIcon = () => (
-    <RefinedIcon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-            <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" />
-            <path d="M12 22V12" />
-            <path d="M12 12l9-5" />
-            <path d="M12 12L3 7" />
-            <circle cx="12" cy="12" r="3" fill="white" stroke="currentColor" />
-        </svg>
-    </RefinedIcon>
-);
-
-const TyreIcon = () => (
-    <RefinedIcon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-            <circle cx="12" cy="12" r="9" />
-            <circle cx="12" cy="12" r="5" />
-            <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8" />
-        </svg>
-    </RefinedIcon>
-);
-
-const FuelIcon = () => (
-    <RefinedIcon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-            <path d="M3 19V5a2 2 0 012-2h11a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-            <path d="M18 7h3a1 1 0 011 1v3a4 4 0 01-4 4" />
-            <rect x="6" y="6" width="8" height="5" rx="1" />
-            <circle cx="10" cy="16" r="2" />
         </svg>
     </RefinedIcon>
 );
@@ -192,25 +121,65 @@ const SupportIcon = () => (
     </RefinedIcon>
 );
 
-const SchedulerIcon = () => (
+// --- Ad Icons ---
+const MaintenanceAppIcon = () => (
     <RefinedIcon>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-            <rect x="3" y="4" width="18" height="18" rx="2" />
-            <path d="M3 10h18M8 2v4M16 2v4" strokeWidth="1.5" />
-            <path d="M7 14h.01M12 14h.01M17 14h.01M7 18h.01M12 18h.01" strokeWidth="2" strokeLinecap="round" />
-            <circle cx="18" cy="18" r="4" fill="white" stroke="currentColor" />
-            <path d="M17 18l1 1 2-2" strokeWidth="1.5" />
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
         </svg>
     </RefinedIcon>
 );
 
-const TrainingIcon = () => (
+const HRPayrollIcon = () => (
     <RefinedIcon>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-            <path d="M22 10L12 5 2 10l10 5 10-5z" />
-            <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5" />
-            <path d="M12 15v5" opacity="0.3" />
-            <circle cx="12" cy="10" r="2" fill="currentColor" stroke="none" />
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            <rect x="15" y="14" width="7" height="4" rx="1" strokeWidth="1" opacity="0.4" />
+        </svg>
+    </RefinedIcon>
+);
+
+const FinanceTicketIcon = () => (
+    <RefinedIcon>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <rect x="2" y="5" width="20" height="14" rx="2" />
+            <line x1="2" y1="10" x2="22" y2="10" />
+            <path d="M7 15h.01M11 15h2" />
+            <circle cx="18" cy="15" r="2" opacity="0.3" />
+        </svg>
+    </RefinedIcon>
+);
+
+const DriverMgmtIcon = () => (
+    <RefinedIcon>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+            <path d="M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83" />
+        </svg>
+    </RefinedIcon>
+);
+
+const PlanningIcon = () => (
+    <RefinedIcon>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+            <circle cx="18" cy="5" r="3" opacity="0.4" />
+        </svg>
+    </RefinedIcon>
+);
+
+const IncidentIcon = () => (
+    <RefinedIcon>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
     </RefinedIcon>
 );
@@ -224,43 +193,64 @@ interface LauncherTileProps {
     badgeColor?: string;
     isInspectionModule?: boolean;
     isLocked: boolean;
-    isPro?: boolean;
-    isEnterprise?: boolean;
+    isAd?: boolean;
     onNavigate: (module: string) => void;
 }
 
 const LauncherTile = ({ 
     id, label, icon, isForcedLock = false, badgeCount = 0, badgeColor = 'bg-slate-900', 
-    isInspectionModule = false, isLocked, isPro = false, isEnterprise = false, onNavigate
+    isInspectionModule = false, isLocked, isAd = false, onNavigate
 }: LauncherTileProps) => {
     const effectiveLock = isForcedLock || (isInspectionModule && isLocked);
+    
+    const handleTileClick = () => {
+        if (isAd) {
+            onNavigate(`support:info:${label}`);
+            return;
+        }
+        if (!effectiveLock) {
+            onNavigate(id);
+        }
+    };
+
     return (
         <button 
-            onClick={() => !effectiveLock && onNavigate(id)}
-            className={`flex flex-col items-center justify-center p-4 transition-all w-full group ${effectiveLock ? 'opacity-25 cursor-not-allowed' : 'hover:opacity-60 active:scale-95'}`}
+            onClick={handleTileClick}
+            className={`flex flex-col items-center justify-center p-4 transition-all w-full group relative 
+                ${isAd 
+                    ? 'md:opacity-40 opacity-70 hover:opacity-100 cursor-pointer active:scale-95' 
+                    : effectiveLock 
+                        ? 'opacity-25 cursor-not-allowed' 
+                        : 'hover:opacity-60 active:scale-95'
+                }`}
         >
             <div className="relative mb-5">
                 {icon}
-                {effectiveLock && (
+                {effectiveLock && !isAd && (
                     <div className="absolute -top-1 -right-1 bg-slate-900 text-white rounded-full p-1 shadow-sm border border-white">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     </div>
+                )}
+                {isAd && (
+                    <>
+                        <div className="absolute -top-2 -right-2 bg-slate-100 text-slate-500 text-[6px] font-black px-1.5 py-0.5 rounded-full border border-slate-200 shadow-sm uppercase tracking-widest whitespace-nowrap z-10">Module Pending</div>
+                        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-600 text-white text-[7px] font-black px-2 py-1 rounded shadow-xl whitespace-nowrap z-20 pointer-events-none uppercase tracking-widest hidden md:block">
+                            Request Setup
+                        </div>
+                    </>
                 )}
                 {badgeCount > 0 && !effectiveLock && (
                     <div className={`absolute -top-1.5 -right-1.5 ${badgeColor} text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm z-20 animate-fadeIn`}>
                         {badgeCount}
                     </div>
                 )}
-                {isEnterprise && !effectiveLock && (
-                    <div className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded border border-white shadow-sm italic uppercase tracking-tighter">enterprise</div>
-                )}
-                {isPro && !isEnterprise && !effectiveLock && (
-                    <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-[8px] font-bold px-2 py-0.5 rounded border border-white shadow-sm italic">pro</div>
-                )}
             </div>
-            <span className={`text-[10px] sm:text-[12px] font-medium text-center tracking-wider leading-tight transition-colors w-full ${effectiveLock ? 'text-slate-300' : 'text-slate-900 group-hover:text-blue-600'}`}>
+            <span className={`text-[10px] sm:text-[11px] font-bold text-center tracking-wider leading-tight transition-colors w-full uppercase ${effectiveLock && !isAd ? 'text-slate-300' : 'text-slate-900 group-hover:text-blue-600'}`}>
                 {label}
             </span>
+            {isAd && (
+                <span className="text-[7px] font-bold text-slate-300 uppercase tracking-widest mt-1 group-hover:text-indigo-400 transition-colors">Integration Only</span>
+            )}
         </button>
     );
 };
@@ -279,9 +269,11 @@ const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate, userR
     return (
         <div className="max-w-5xl mx-auto py-8 sm:py-12 flex flex-col items-center justify-center min-h-[calc(100vh-140px)] overflow-hidden">
             <div className="w-full space-y-24 sm:space-y-32">
+                
+                {/* 1. System Management */}
                 <section id="system-mgmt-section" className="w-full animate-fadeIn">
                     <SectionHeader label="System Management" />
-                    <div className="grid grid-cols-4 gap-x-4 gap-y-16 sm:gap-y-20">
+                    <div className="grid grid-cols-4 gap-x-4 gap-y-16">
                         <LauncherTile id="maintenance" label="Security" isLocked={isLocked} isForcedLock={!isSuperAdmin} onNavigate={onNavigate} icon={<SecurityIcon />} />
                         <LauncherTile id="users" label="Staff" isLocked={isLocked} isForcedLock={!isAdmin} onNavigate={onNavigate} icon={<StaffIcon />} />
                         <LauncherTile id="registry" label="Fleet Registry" isLocked={isLocked} isForcedLock={!isAdmin} onNavigate={onNavigate} icon={<RegistryIcon />} />
@@ -289,36 +281,37 @@ const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate, userR
                     </div>
                 </section>
 
+                {/* 2. Inspection Hub */}
                 <section id="inspection-forms-section" className="w-full animate-fadeIn">
-                    <SectionHeader label="Inspection Forms" />
-                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-x-4 gap-y-16 sm:gap-y-20">
+                    <SectionHeader label="Inspection Hub" />
+                    <div className="grid grid-cols-4 gap-x-4 gap-y-16">
                         <LauncherTile id="general" label="General Inspection" isInspectionModule={true} isLocked={isLocked} onNavigate={onNavigate} icon={<InspectionChecklistIcon />} />
                         <LauncherTile id="petroleum" label="Petroleum V1 Inspection" isInspectionModule={true} isLocked={isLocked} onNavigate={onNavigate} icon={<InspectionChecklistIcon />} />
                         <LauncherTile id="petroleum_v2" label="Petroleum V2 Inspection" isInspectionModule={true} isLocked={isLocked} onNavigate={onNavigate} icon={<InspectionChecklistIcon />} />
-                        <LauncherTile id="acid" label="Acid Tank Inspection" isInspectionModule={true} isLocked={isLocked} onNavigate={onNavigate} icon={<InspectionChecklistIcon />} />
-                        <LauncherTile id="heavy_haulage" label="Heavy Haulage & Specialized Audit" isInspectionModule={true} isLocked={true} isForcedLock={true} isEnterprise={true} onNavigate={onNavigate} icon={<HeavyHaulageIcon />} />
+                        <LauncherTile id="acid" label="Acid Tanker Inspection" isInspectionModule={true} isLocked={isLocked} onNavigate={onNavigate} icon={<InspectionChecklistIcon />} />
                     </div>
                 </section>
 
+                {/* 3. Operations */}
                 <section className="w-full animate-fadeIn">
-                    <SectionHeader label="Operations & Support" />
-                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-x-4 gap-y-16 sm:gap-y-20">
+                    <SectionHeader label="Operations & Logistics" />
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-x-4 gap-y-16">
                         <LauncherTile id="analytics" label="Fleet Analysis" isLocked={isLocked} onNavigate={onNavigate} icon={<AnalyticsIcon />} badgeCount={pendingAlertsCount} badgeColor="bg-rose-500" />
-                        <LauncherTile id="track_requests" label="Inspection Requests" isLocked={isLocked} onNavigate={onNavigate} icon={<RequestsIcon />} />
-                        <LauncherTile id="service_schedule" label="Maintenance Scheduler" isLocked={isLocked} isForcedLock={true} isPro={true} onNavigate={onNavigate} icon={<SchedulerIcon />} />
-                        <LauncherTile id="personnel_training" label="Training & Induction" isLocked={isLocked} isForcedLock={true} isPro={true} onNavigate={onNavigate} icon={<TrainingIcon />} />
-                        <LauncherTile id="support" label="Help & Support" isLocked={isLocked} onNavigate={onNavigate} icon={<SupportIcon />} />
+                        <LauncherTile id="track_requests" label="Request Inspection" isLocked={isLocked} onNavigate={onNavigate} icon={<RequestsIcon />} />
+                        <LauncherTile id="support" label="Support Center" isLocked={isLocked} onNavigate={onNavigate} icon={<SupportIcon />} />
                     </div>
                 </section>
 
+                {/* 4. Integrated Corporate Solutions (Advertisements) */}
                 <section className="w-full animate-fadeIn">
-                    <SectionHeader label="Enterprise Operations" />
-                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-x-4 gap-y-16 sm:gap-y-20">
-                        <LauncherTile id="incident_report" label="Incident Reporting" isLocked={isLocked} isForcedLock={true} isEnterprise={true} onNavigate={onNavigate} icon={<IncidentIcon />} />
-                        <LauncherTile id="waste_mgmt" label="Scrap & Waste" isLocked={isLocked} isForcedLock={true} isEnterprise={true} onNavigate={onNavigate} icon={<WasteIcon />} />
-                        <LauncherTile id="journey_mgmt" label="Journey Management" isLocked={isLocked} isForcedLock={true} isEnterprise={true} onNavigate={onNavigate} icon={<JourneyIcon />} />
-                        <LauncherTile id="tyre_mgmt" label="Tyre Lifecycle" isLocked={isLocked} isForcedLock={true} isEnterprise={true} onNavigate={onNavigate} icon={<TyreIcon />} />
-                        <LauncherTile id="fuel_intel" label="Fuel Intelligence" isLocked={isLocked} isForcedLock={true} isEnterprise={true} onNavigate={onNavigate} icon={<FuelIcon />} />
+                    <SectionHeader label="Integrated Corporate Solutions" />
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-x-4 gap-y-16">
+                        <LauncherTile id="ad_maintenance" label="Fleet Maintenance" isAd={true} isLocked={true} isForcedLock={false} onNavigate={onNavigate} icon={<MaintenanceAppIcon />} />
+                        <LauncherTile id="ad_hr" label="HR & Payroll" isAd={true} isLocked={true} isForcedLock={false} onNavigate={onNavigate} icon={<HRPayrollIcon />} />
+                        <LauncherTile id="ad_finance" label="Finance Tickets" isAd={true} isLocked={true} isForcedLock={false} onNavigate={onNavigate} icon={<FinanceTicketIcon />} />
+                        <LauncherTile id="ad_driver" label="Driver Management" isAd={true} isLocked={true} isForcedLock={false} onNavigate={onNavigate} icon={<DriverMgmtIcon />} />
+                        <LauncherTile id="ad_planning" label="Fleet Planning" isAd={true} isLocked={true} isForcedLock={false} onNavigate={onNavigate} icon={<PlanningIcon />} />
+                        <LauncherTile id="ad_incident" label="Incident Reports" isAd={true} isLocked={true} isForcedLock={false} onNavigate={onNavigate} icon={<IncidentIcon />} />
                     </div>
                 </section>
             </div>

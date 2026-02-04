@@ -7,6 +7,8 @@ interface SupportViewProps {
     showToast: (msg: string, type: 'success' | 'error' | 'info' | 'warning') => void;
     settings?: SystemSettings;
     validationLists?: ValidationLists;
+    prefillData?: { subject: string, description: string } | null;
+    onPrefillConsumed?: () => void;
 }
 
 const TicketList: React.FC<{
@@ -105,7 +107,7 @@ const TicketDetail: React.FC<{
     );
 };
 
-const SupportView: React.FC<SupportViewProps> = ({ appScriptUrl, currentUser, showToast, settings }) => {
+const SupportView: React.FC<SupportViewProps> = ({ appScriptUrl, currentUser, showToast, settings, prefillData, onPrefillConsumed }) => {
     const isLocked = (window as any).isSubscriptionLocked || false;
     const [activeTab, setActiveTab] = useState<'create' | 'list'>(isLocked ? 'list' : 'create');
     const [tickets, setTickets] = useState<SupportTicket[]>([]);
@@ -114,6 +116,19 @@ const SupportView: React.FC<SupportViewProps> = ({ appScriptUrl, currentUser, sh
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSendingReply, setIsSendingReply] = useState(false);
     const [formData, setFormData] = useState({ subject: '', description: '', priority: 'Medium' });
+
+    // Handle Prefill Data
+    useEffect(() => {
+        if (prefillData) {
+            setFormData({
+                subject: prefillData.subject,
+                description: prefillData.description,
+                priority: 'Medium'
+            });
+            setActiveTab('create');
+            if (onPrefillConsumed) onPrefillConsumed();
+        }
+    }, [prefillData]);
 
     const fetchTickets = async () => {
         if (!appScriptUrl || !currentUser) return;
@@ -245,7 +260,7 @@ const SupportView: React.FC<SupportViewProps> = ({ appScriptUrl, currentUser, sh
                 </div>
 
                 <div className="space-y-6">
-                    {/* Relocated Share Application Section */}
+                    {/* Share Application Section */}
                     <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-lg animate-fadeIn">
                         <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight mb-2">Share Application</h3>
                         <p className="text-xs text-slate-500 font-medium leading-relaxed mb-6">Invite colleagues or save the link to your device for quick access.</p>
