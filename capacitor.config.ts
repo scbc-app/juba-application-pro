@@ -10,6 +10,9 @@ const config: CapacitorConfig = {
     url: 'https://scbc-app.github.io/juba-application-pro'
   },
   plugins: {
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert']
+    },
     SplashScreen: {
       launchShowDuration: 3000,
       launchAutoHide: true,
@@ -23,7 +26,22 @@ const config: CapacitorConfig = {
       splashFullScreen: true,
       splashImmersive: true
     }
+  },
+  // ====== ADD ELECTRON CONFIGURATION ======
+  electron: {
+    deepLinkingEnabled: true,
+    customUrlScheme: 'safetycheckpro',
+    trayIconAndMenuEnabled: false,
+    splashScreenEnabled: true,
+    splashScreenImageName: 'splash.png',
+    backgroundColor: '#ffffff',
+    windowsWebPreferences: {
+      webSecurity: false,
+      nodeIntegration: true,
+      contextIsolation: false
+    }
   }
+  // ====== END ELECTRON CONFIG ======
 };
 
 export default config;

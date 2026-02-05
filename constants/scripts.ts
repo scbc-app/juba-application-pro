@@ -1,4 +1,3 @@
-
 import {} from '../types';
 
 const CODE_CONTROLLER = `
@@ -55,6 +54,41 @@ const AuthHandlers = {
     let sheet = ss.getSheetByName('Users') || ss.insertSheet('Users');
     sheet.appendRow([body.username.toLowerCase(), body.password, body.name, body.role, body.position, new Date().toISOString(), "{}", "TRUE"]);
     return ResponseBuilder.success();
+  },
+  handleGetUsers: function(ss) {
+    let sheet = ss.getSheetByName('Users');
+    if (!sheet) return ResponseBuilder.success({ users: [] });
+    const data = sheet.getDataRange().getValues();
+    const users = data.slice(1).map(r => ({ username: r[0], name: r[2], role: r[3], position: r[4], isActive: r[7] === "TRUE" }));
+    return ResponseBuilder.success({ users });
+  },
+  handleDeleteUser: function(ss, body) {
+    let sheet = ss.getSheetByName('Users');
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0].toLowerCase() === body.username.toLowerCase()) {
+        sheet.deleteRow(i + 1);
+        return ResponseBuilder.success();
+      }
+    }
+    return ResponseBuilder.error("User not found");
+  },
+  handleUpdateUser: function(ss, body) {
+    let sheet = ss.getSheetByName('Users');
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0].toLowerCase() === (body.originalUsername || body.username).toLowerCase()) {
+        if (body.username) sheet.getRange(i + 1, 1).setValue(body.username);
+        if (body.password) sheet.getRange(i + 1, 2).setValue(body.password);
+        if (body.name) sheet.getRange(i + 1, 3).setValue(body.name);
+        if (body.role) sheet.getRange(i + 1, 4).setValue(body.role);
+        if (body.position) sheet.getRange(i + 1, 5).setValue(body.position);
+        if (body.isActive !== undefined) sheet.getRange(i + 1, 8).setValue(body.isActive ? "TRUE" : "FALSE");
+        if (body.preferences) sheet.getRange(i + 1, 7).setValue(JSON.stringify(body.preferences));
+        return ResponseBuilder.success();
+      }
+    }
+    return ResponseBuilder.error("User not found");
   }
 };`;
 
@@ -94,20 +128,19 @@ const SystemHandlers = {
   handleManageFleet: function(ss, body) {
     let sheet = ss.getSheetByName('Validation_Data') || ss.insertSheet('Validation_Data');
     const lastRow = sheet.getLastRow();
-    // Ensure standard headers exist
     if (lastRow === 0) {
       sheet.appendRow(["Driver_Name","Inspector_Name","Location","Position","Misc1","Misc2","Misc3","Truck_Reg_No","Trailer_Reg_No"]);
       sheet.setFrozenRows(1);
     }
     
-    const colIdx = body.type === 'truck' ? 8 : 9; // Col H is 8, Col I is 9
+    const colIdx = body.type === 'truck' ? 8 : 9; 
     const range = sheet.getRange(1, colIdx, Math.max(1, sheet.getLastRow()), 1);
     const colValues = range.getValues().flat();
     const firstEmpty = colValues.indexOf("");
     const targetRow = firstEmpty === -1 ? sheet.getLastRow() + 1 : firstEmpty + 1;
     
     sheet.getRange(targetRow, colIdx).setValue(body.value);
-    return ResponseBuilder.success({ message: "Asset added to Col " + (colIdx === 8 ? "H" : "I") });
+    return ResponseBuilder.success({ message: "Asset added" });
   },
 
   handleBulkManageFleet: function(ss, body) {
@@ -142,7 +175,17 @@ const SystemHandlers = {
 
   handleUpdateSettings: function(ss, body) {
     let sheet = ss.getSheetByName('System_Settings') || ss.insertSheet('System_Settings');
-    const row = [body.companyName, body.managerEmail, new Date(), "Admin", body.companyLogo, "", "", body.maintenanceMode ? "TRUE" : "FALSE", body.maintenanceMessage];
+    const row = [
+      body.companyName, 
+      body.managerEmail, 
+      new Date(), 
+      "Admin", 
+      body.companyLogo || "", 
+      body.mobileApkLink || "", 
+      body.webAppUrl || "", 
+      body.maintenanceMode ? "TRUE" : "FALSE", 
+      body.maintenanceMessage || ""
+    ];
     if (sheet.getLastRow() < 2) sheet.appendRow(["A","B","C","D","E","F","G","H","I"]);
     sheet.getRange(2, 1, 1, row.length).setValues([row]);
     return ResponseBuilder.success();

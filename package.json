@@ -10,9 +10,11 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@capacitor-community/electron": "^5.0.1",
     "@capacitor/android": "^8.0.1",
     "@capacitor/cli": "^8.0.1",
     "@capacitor/core": "^8.0.1",
+    "@capacitor/push-notifications": "^8.0.0",
     "@google/genai": "^1.31.0",
     "html2pdf.js": "^0.10.1",
     "react": "^18.3.1",

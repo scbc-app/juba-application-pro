@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface InspectionStartModalProps {
@@ -55,7 +54,7 @@ const InspectionStartModal: React.FC<InspectionStartModalProps> = ({
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                         </div>
                         <div className="text-left">
-                            <div className="text-sm font-black uppercase tracking-wide">Start New Inspection</div>
+                            <div className="text-sm font-black uppercase tracking-wide">Start Inspection</div>
                             {hasDraft && <div className="text-[10px] font-medium text-emerald-100 opacity-80">This will discard the current draft</div>}
                         </div>
                     </button>

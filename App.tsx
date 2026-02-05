@@ -30,6 +30,7 @@ import RequestInspectionModal from './components/ui/RequestInspectionModal';
 import OnboardingWizard from './components/ui/OnboardingWizard'; 
 import SystemTour from './components/ui/SystemTour'; 
 import InstallPwaPrompt from './components/ui/InstallPwaPrompt';
+import SolutionsDrawer from './components/ui/SolutionsDrawer';
 
 // Views
 import LoginView from './views/LoginView';
@@ -63,6 +64,7 @@ const App = () => {
   const [activeModule, setActiveModule] = useState('overview'); 
   const [viewMode, setViewMode] = useState<'dashboard' | 'form'>('dashboard');
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isSolutionsOpen, setIsSolutionsOpen] = useState(false);
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error' | 'info' | 'warning'} | null>(null);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
@@ -120,21 +122,21 @@ const App = () => {
   const { submissionStatus, setSubmissionStatus, isSyncing, addToQueue } = useOfflineSync(appScriptUrl, showToast, () => fetchHistory(true));
   
   const handleNavigate = async (module: string) => {
-    // Special case for requesting info about integrated solutions
     if (module.startsWith('support:info:')) {
         const solutionName = module.replace('support:info:', '');
         setSupportPrefill({
-            subject: `Inquiry: ${solutionName} Module`,
-            description: `I would like to request more information about integrating the ${solutionName} module into my current workflow. This module is not yet part of my application access.`
+            subject: `Inquiry: ${solutionName}`,
+            description: `Automated Request: User is interested in learning more about integrating the "${solutionName}" module into the current fleet workflow.`
         });
         setActiveModule('support');
         setViewMode('dashboard');
+        setIsSolutionsOpen(false);
         return;
     }
 
     if (module.startsWith('request:start_inspection')) {
         if (isSystemLocked) {
-            showToast("Action Restricted: System is in View-Only mode.", "error");
+            showToast("System is in View-Only mode.", "error");
             return;
         }
         const parts = module.split('|');
@@ -158,7 +160,6 @@ const App = () => {
         return;
     }
 
-    // Reset support prefill when navigating normally
     if (module !== 'support') {
         setSupportPrefill(null);
     }
@@ -169,7 +170,7 @@ const App = () => {
 
   const handleOpenInspectionFlow = (module: string) => {
     if (isSystemLocked) {
-        showToast("Action Restricted: System is in View-Only mode.", "error");
+        showToast("System is currently in view-only mode.", "error");
         return;
     }
     const draftKey = `sc_draft_${module}`;
@@ -195,7 +196,7 @@ const App = () => {
 
   const startFreshInspection = (module: string, prefill?: Partial<InspectionData>) => {
       if (isSystemLocked) {
-          showToast("RESTRICTED: View-Only mode active.", "error");
+          showToast("Access Restricted: View-Only mode active.", "error");
           return;
       }
       setLastSubmittedData(null);
@@ -233,11 +234,11 @@ const App = () => {
 
   const handleGoogleSheetSubmit = async (formData: InspectionData) => {
     if (isSystemLocked) {
-        showToast("RESTRICTED: View-Only mode. Submission blocked.", "error");
+        showToast("System is in View-Only mode. Submission blocked.", "error");
         return;
     }
     if (!appScriptUrl) {
-        showToast("Server URL not configured", "error");
+        showToast("Application URL not configured", "error");
         return;
     }
 
@@ -299,7 +300,7 @@ const App = () => {
             const analysis = await analyzeInspection(formData);
             setAiAnalysisResult(analysis);
         } catch (aiErr) {
-            setAiAnalysisResult("AI analysis skipped due to connectivity or processing error.");
+            setAiAnalysisResult("AI analysis currently unavailable.");
         }
         fetchHistory(true); 
     } catch (error) {
@@ -312,7 +313,7 @@ const App = () => {
   };
 
   const handleRequestSubmit = async (data: any) => {
-      if (isSystemLocked) { showToast("RESTRICTED: View-Only mode. Requests disabled.", "error"); return; }
+      if (isSystemLocked) { showToast("Requests are disabled in View-Only mode.", "error"); return; }
       if (!appScriptUrl) return;
       try {
           await fetch(appScriptUrl, {
@@ -320,7 +321,7 @@ const App = () => {
               body: JSON.stringify({ action: 'request_inspection', requester: currentUser?.name, role: currentUser?.role, ...data }),
               mode: 'no-cors'
           });
-          showToast("Inspection Request submitted successfully", "success");
+          showToast("Inspection request submitted successfully", "success");
       } catch (e) { showToast("Failed to submit request", "error"); }
   };
 
@@ -335,13 +336,13 @@ const App = () => {
       localStorage.setItem('safetyCheck_user', JSON.stringify(userWithSetup));
       setActiveModule('overview');
       setViewMode('dashboard');
-      showToast("Identity verified. Welcome aboard!", "success");
+      showToast("Profile verified successfully.", "success");
       setShowTour(true);
   };
 
   const handleCheckMaintStatus = async () => {
     setIsCheckingMaint(true);
-    try { await fetchSystemSettings(appScriptUrl, true); showToast("System status updated.", "info"); } finally { setIsCheckingMaint(false); }
+    try { await fetchSystemSettings(appScriptUrl, true); showToast("Status updated.", "info"); } finally { setIsCheckingMaint(false); }
   };
 
   const isAtRoot = activeModule === 'overview';
@@ -361,7 +362,7 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 relative">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 relative">
       <SubmissionOverlay 
         status={submissionStatus} 
         onClose={() => { setSubmissionStatus('idle'); setViewMode('dashboard'); }}
@@ -373,6 +374,10 @@ const App = () => {
 
       {isProfileModalOpen && (
           <ProfileModal user={currentUser} settings={settings} appScriptUrl={appScriptUrl} onClose={() => setIsProfileModalOpen(false)} showToast={showToast} onUpdateSuccess={(u) => setCurrentUser(u)} onLogout={() => { setIsProfileModalOpen(false); handleLogout(); }} />
+      )}
+
+      {isSolutionsOpen && (
+          <SolutionsDrawer isOpen={isSolutionsOpen} onClose={() => setIsSolutionsOpen(false)} onAction={handleNavigate} />
       )}
 
       <RequestInspectionModal isOpen={isRequestModalOpen} onClose={() => setIsRequestModalOpen(false)} onSubmit={handleRequestSubmit} validationLists={validationLists} currentUserRole={currentUser.role} />
@@ -389,56 +394,50 @@ const App = () => {
       <div className="relative z-10 min-h-screen flex flex-col">
           <div className="no-print">
             {settings.maintenanceMode && (
-                <div className="bg-amber-600 px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-white shadow-lg relative z-[101]">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center animate-pulse">
-                            <svg className="w-5 h-5 text-amber-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                        <div className="text-center sm:text-left">
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">System Maintenance Mode Active</p>
-                            <p className="text-[11px] font-medium text-amber-5 text-amber-50 leading-tight">{settings.maintenanceMessage || 'Restricted view-only mode enabled.'}</p>
-                        </div>
+                <div className="bg-amber-600 px-4 py-2.5 flex items-center justify-center gap-4 text-white shadow relative z-[101]">
+                    <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4 text-amber-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <p className="text-xs font-black">{settings.maintenanceMessage || 'SYSTEM MAINTENANCE IN PROGRESS'}</p>
                     </div>
-                    <button onClick={handleCheckMaintStatus} disabled={isCheckingMaint} className="px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
-                        {isCheckingMaint ? <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> : null}
-                        {isCheckingMaint ? 'Checking...' : 'Check Status'}
+                    <button onClick={handleCheckMaintStatus} disabled={isCheckingMaint} className="px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/30 rounded text-[10px] font-black transition-all uppercase tracking-widest">
+                        {isCheckingMaint ? 'SYNCING...' : 'CHECK STATUS'}
                     </button>
                 </div>
             )}
             <SubscriptionAlert subscription={subscription} user={currentUser} onManage={() => setActiveModule('maintenance')} />
           </div>
 
-          <header className="bg-white border-b border-gray-100 sticky top-0 z-40 px-4 py-2 flex items-center justify-between h-14 no-print">
-              <div className="flex items-center gap-1 sm:gap-2">
+          <header className="bg-white border-b border-slate-200 sticky top-0 z-40 px-4 py-2 flex items-center justify-between h-14 no-print">
+              <div className="flex items-center gap-2">
                   {!isAtRoot && (
-                      <button onClick={() => { setActiveModule('overview'); setViewMode('dashboard'); }} title="Back to Overview" className="p-2 text-slate-900 hover:bg-slate-50 rounded-lg transition-all flex items-center group">
-                          <svg className="w-5 h-5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"></path></svg>
-                          <span className="text-[10px] font-bold uppercase tracking-widest ml-1 hidden sm:inline">Back</span>
+                      <button onClick={() => { setActiveModule('overview'); setViewMode('dashboard'); }} className="p-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-all flex items-center group">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+                          <span className="text-[10px] font-black ml-1 hidden sm:inline uppercase tracking-widest">Dashboard</span>
                       </button>
                   )}
               </div>
-              <button onClick={() => { setActiveModule('overview'); setViewMode('dashboard'); }} className="flex flex-col items-center hover:opacity-70 transition-opacity absolute left-1/2 -translate-x-1/2">
-                  <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-none uppercase">{settings.companyName || 'SafetyCheck Pro'}</h1>
-                  <span className="text-[7px] font-bold text-slate-400 tracking-[0.3em] mt-1 uppercase">Fleet Portal</span>
+              <button onClick={() => { setActiveModule('overview'); setViewMode('dashboard'); }} className="flex flex-col items-center hover:opacity-80 transition-opacity absolute left-1/2 -translate-x-1/2">
+                  <h1 className="text-sm sm:text-base font-black text-slate-900 tracking-tighter leading-none uppercase">{settings.companyName || 'SAFETYCHECK PRO'}</h1>
+                  <span className="text-[7px] font-black text-indigo-600 tracking-[0.4em] mt-1 hidden sm:block">CORE SYSTEM v3.2</span>
               </button>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                   <NotificationCenter id="notification-bell" notifications={notifications} onMarkAsRead={(id) => handleMarkNotificationRead(id, handleNavigate)} onDismiss={handleDismissNotification} onClearAll={handleClearAllNotifications} onAcknowledge={handleGlobalAcknowledge} canAcknowledge={isAdmin} />
-                  <button id="profile-trigger" onClick={() => setIsProfileModalOpen(true)} className={`p-2 transition-colors ${isProfileModalOpen ? 'text-slate-900 bg-slate-50 rounded-full' : 'text-slate-400 hover:text-slate-600'}`}>
+                  <button id="profile-trigger" onClick={() => setIsProfileModalOpen(true)} className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                   </button>
               </div>
           </header>
 
           {isSystemLocked && (
-              <div className="bg-amber-100 border-b border-amber-200 px-4 py-2 flex items-center justify-center gap-3 animate-pulse no-print">
-                  <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                  <span className="text-[10px] font-black text-amber-800 uppercase tracking-widest">
-                      {lockInfo.reason === 'maintenance' ? 'System in Maintenance Mode' : 'View-Only Mode - License Expired'}
+              <div className="bg-amber-50 border-b border-amber-200 px-4 py-1.5 flex items-center justify-center gap-2 no-print">
+                  <svg className="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                  <span className="text-[9px] font-black text-amber-800 uppercase tracking-[0.2em]">
+                      {lockInfo.reason === 'maintenance' ? 'LOCKED: CORE MAINTENANCE' : 'RESTRICTED: VIEW-ONLY MODE'}
                   </span>
               </div>
           )}
 
-          <main className="flex-1 p-4 md:p-8 w-full max-w-7xl mx-auto no-print">
+          <main className="flex-1 p-4 md:p-6 w-full max-w-7xl mx-auto no-print">
               {viewMode === 'form' ? (
                   <InspectionFormView initialData={formInitialData} activeModule={activeModule} validationLists={validationLists} settings={settings} onSaveDraft={handleSaveDraft} onExit={handleExitForm} onSubmit={handleGoogleSheetSubmit} submissionStatus={submissionStatus} onViewReport={handleViewReport} />
               ) : (
@@ -460,8 +459,26 @@ const App = () => {
                   </div>
               )}
           </main>
-          <footer className="mt-auto py-6 border-t border-slate-50 text-center no-print">
-              <span className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em]">scbc@2026</span>
+
+          {/* RESTORED SUIT ICON AT BOTTOM LEFT */}
+          {!isSystemLocked && viewMode === 'dashboard' && (
+              <div className="fixed bottom-8 left-8 z-[100] no-print">
+                  <button 
+                    onClick={() => setIsSolutionsOpen(true)}
+                    className="w-16 h-16 bg-slate-900 text-white rounded-2xl shadow-2xl flex items-center justify-center hover:bg-black hover:scale-110 transition-all group border-t border-white/10 relative"
+                  >
+                      <div className="absolute inset-0 rounded-2xl border-2 border-indigo-500 animate-pulse opacity-50"></div>
+                      <svg className="w-8 h-8 group-hover:rotate-12 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                          <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+                      </svg>
+                      <div className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm border border-indigo-500 uppercase tracking-widest">PRO</div>
+                  </button>
+              </div>
+          )}
+
+          <footer className="mt-auto py-6 border-t border-slate-100 text-center no-print">
+              <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.4em]">© Scbc 2026</span>
           </footer>
       </div>
 

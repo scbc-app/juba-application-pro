@@ -1,11 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import { User } from '../types';
 
 interface RequestTrackingViewProps {
     appScriptUrl: string;
     currentUser: User | null;
-    // Fix: Updated showToast type signature to include 'warning'
     showToast: (msg: string, type: 'success' | 'error' | 'info' | 'warning') => void;
     onRequestNew?: () => void;
 }
@@ -28,17 +26,17 @@ const RequestTrackingView: React.FC<RequestTrackingViewProps> = ({ appScriptUrl,
     const [isLoading, setIsLoading] = useState(false);
     const isLocked = (window as any).isSubscriptionLocked || false;
 
+    // Optimized polling interval: 5 minutes instead of 1 minute to save API calls
+    const REFRESH_INTERVAL = 300000;
+
     useEffect(() => {
         fetchRequests();
-        // Background refresh every 60 seconds
-        const interval = setInterval(fetchRequests, 60000);
+        const interval = setInterval(fetchRequests, REFRESH_INTERVAL);
         return () => clearInterval(interval);
     }, [currentUser?.username, appScriptUrl]);
 
     const fetchRequests = async () => {
         if (!appScriptUrl || !currentUser) return;
-        
-        // Only show full loader on first load
         if (requests.length === 0) setIsLoading(true);
         
         try {
@@ -63,7 +61,6 @@ const RequestTrackingView: React.FC<RequestTrackingViewProps> = ({ appScriptUrl,
 
                 const filtered = allMapped.filter((req: RequestItem) => {
                     const role = currentUser.role.toLowerCase();
-                    // Admins see everything
                     if (role === 'admin' || role === 'superadmin') return true;
                     
                     const myName = String(currentUser.name || '').toLowerCase();
@@ -71,12 +68,9 @@ const RequestTrackingView: React.FC<RequestTrackingViewProps> = ({ appScriptUrl,
                     const isAssigned = String(req.assignedTo).toLowerCase() === myName;
                     const isUnassigned = String(req.assignedTo).toLowerCase() === 'unassigned';
                     
-                    // Inspectors see their assigned work, unassigned work, or stuff they requested
                     if (role === 'inspector') {
                         return isAssigned || isUnassigned || isRequester;
                     }
-                    
-                    // Default: only see what you requested
                     return isRequester;
                 }).sort((a: RequestItem, b: RequestItem) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
@@ -97,138 +91,110 @@ const RequestTrackingView: React.FC<RequestTrackingViewProps> = ({ appScriptUrl,
     const completionRate = requests.length > 0 ? Math.round((completedCount / requests.length) * 100) : 0;
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 animate-fadeIn px-4 md:px-0">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-end gap-4">
+        <div className="max-w-6xl mx-auto space-y-6 animate-fadeIn px-2 sm:px-4 pb-12">
+            {/* Standardized Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-2">
                 <div>
-                    <h2 className="text-3xl font-black text-gray-800 flex items-center gap-3">
-                        <div className="p-2 bg-indigo-100 text-indigo-700 rounded-xl shrink-0">
-                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                        </div>
-                        Inspection Requests & Tracking
-                    </h2>
-                    <p className="text-gray-500 font-medium mt-1 uppercase tracking-widest text-[10px]">Fleet Request Pipeline Summary</p>
+                    <h2 className="text-2xl font-semibold text-slate-800 tracking-tight uppercase">Inspection Requests</h2>
+                    <p className="text-slate-400 font-medium mt-1 uppercase tracking-widest text-[9px]">Live Pipeline</p>
                 </div>
-                <div className="flex gap-3 w-full md:w-auto">
-                    {onRequestNew && (
-                        <button 
-                            onClick={onRequestNew}
-                            disabled={isLocked}
-                            className={`flex-1 md:flex-none px-6 py-3 text-white font-bold rounded-xl shadow-lg transition-all transform flex items-center justify-center gap-2 text-xs uppercase tracking-widest
-                                ${isLocked ? 'bg-slate-300 cursor-not-allowed grayscale' : 'bg-indigo-600 hover:bg-indigo-700 active:scale-95 shadow-indigo-200'}
-                            `}
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path></svg>
-                            {isLocked ? 'Locked' : 'New Request'}
-                        </button>
-                    )}
-                </div>
+                {onRequestNew && (
+                    <button 
+                        onClick={onRequestNew}
+                        disabled={isLocked}
+                        className={`w-full sm:w-auto px-6 py-3 text-white font-semibold rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2.5 text-[10px] uppercase tracking-widest
+                            ${isLocked ? 'bg-slate-200 cursor-not-allowed text-slate-400 shadow-none' : 'bg-slate-900 hover:bg-black border-t border-white/10'}
+                        `}
+                    >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path d="M12 4v16m8-8H4"></path></svg>
+                        New Request
+                    </button>
+                )}
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-                    <div>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Queue</p>
-                        <h3 className="text-3xl font-black text-amber-500">{pendingCount}</h3>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
+            {/* Standardized Metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
+                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p>
+                    <h3 className="text-2xl font-semibold text-amber-500">{pendingCount}</h3>
                 </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-                    <div>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Finished</p>
-                        <h3 className="text-3xl font-black text-emerald-600">{completedCount}</h3>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Completed</p>
+                    <h3 className="text-2xl font-semibold text-emerald-600">{completedCount}</h3>
                 </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
-                    <div>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Fulfillment</p>
-                        <h3 className="text-3xl font-black text-indigo-600">{completionRate}%</h3>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm col-span-2 md:col-span-1">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Overall Progress</p>
+                    <div className="flex items-center gap-3">
+                        <h3 className="text-2xl font-semibold text-slate-700">{completionRate}%</h3>
+                        <div className="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+                            <div className="h-full bg-indigo-500 transition-all duration-1000" style={{ width: `${completionRate}%` }}></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Request List */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="block md:table w-full">
-                    <div className="bg-gray-50 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] border-b border-gray-100 hidden md:table-header-group">
-                        <div className="md:table-row">
-                            <div className="md:table-cell px-8 py-5">Status</div>
-                            <div className="md:table-cell px-8 py-5">Vehicle</div>
-                            <div className="md:table-cell px-8 py-5">Order Detail</div>
-                            <div className="md:table-cell px-8 py-5">Personnel</div>
-                            <div className="md:table-cell px-8 py-5 text-right">Requested</div>
+            {/* Redesigned Request Container */}
+            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                <div className="px-6 py-4 bg-slate-50/50 border-b border-slate-100">
+                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Active Queue</h3>
+                </div>
+
+                <div className="divide-y divide-slate-50">
+                    {isLoading ? (
+                        <div className="py-20 text-center">
+                            <div className="w-8 h-8 border-3 border-slate-100 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+                            <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-widest">Updating data...</p>
                         </div>
-                    </div>
-                    <div className="block md:table-row-group divide-y divide-gray-100">
-                        {isLoading ? (
-                            <div className="p-12 text-center text-gray-400 flex flex-col items-center">
-                                <div className="w-8 h-8 border-4 border-gray-200 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
-                                <p className="text-[10px] font-black uppercase tracking-widest">Updating Pipeline...</p>
-                            </div>
-                        ) : requests.length === 0 ? (
-                            <div className="p-16 text-center">
-                                <h3 className="text-gray-800 font-bold mb-1">Queue Empty</h3>
-                                <p className="text-sm text-gray-400">No active inspection requests found.</p>
-                            </div>
-                        ) : requests.map((req) => (
-                            <div key={req.id} className="hover:bg-gray-50 transition block md:table-row p-6 md:p-0 relative">
-                                <div className="md:table-cell md:px-8 md:py-6 block mb-4 md:mb-0">
-                                    {req.status === 'Completed' ? (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-widest">
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                            Fulfilled
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-100 animate-pulse uppercase tracking-widest">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
-                                            Active
-                                        </span>
-                                    )}
+                    ) : requests.length === 0 ? (
+                        <div className="py-20 text-center">
+                            <p className="text-[11px] font-medium text-slate-300 uppercase tracking-widest">No active requests found</p>
+                        </div>
+                    ) : requests.map((req) => (
+                        <div key={req.id} className="p-5 sm:px-8 sm:py-6 hover:bg-slate-50/30 transition-colors flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-12">
+                            
+                            {/* Asset Identity Block */}
+                            <div className="flex items-center gap-4 flex-1 min-w-0">
+                                <div className={`w-2 h-2 rounded-full shrink-0 ${req.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`} />
+                                <div className="min-w-0">
+                                    <div className="text-sm font-semibold text-slate-800 uppercase tracking-tight truncate">{req.truck}</div>
+                                    <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{req.trailer || 'Stand-alone Unit'}</div>
                                 </div>
-                                <div className="md:table-cell md:px-8 md:py-6 block mb-4 md:mb-0">
-                                    <div className="md:hidden text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Vehicle Asset</div>
-                                    <div className="font-bold text-gray-800 text-base uppercase">{req.truck}</div>
-                                    <div className="text-[10px] text-gray-400 font-bold">{req.trailer || 'Stand-alone Unit'}</div>
-                                </div>
-                                <div className="md:table-cell md:px-8 md:py-6 block mb-4 md:mb-0">
-                                    <div className="md:hidden text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Classification</div>
-                                    <div className="text-xs font-bold text-gray-700">{req.type} Check</div>
-                                    <div className={`text-[10px] font-black uppercase mt-0.5 tracking-wider ${
-                                        req.priority === 'Critical' || req.priority === 'Urgent' || req.priority === 'Safety Concern' ? 'text-red-600' : 'text-slate-400'
+                            </div>
+
+                            {/* Details Block */}
+                            <div className="grid grid-cols-2 sm:flex sm:items-center gap-4 sm:gap-12 shrink-0">
+                                <div className="min-w-[110px]">
+                                    <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight">{req.type}</div>
+                                    <div className={`text-[9px] font-bold uppercase tracking-widest ${
+                                        req.priority === 'Critical' || req.priority === 'Urgent' ? 'text-rose-500' : 'text-slate-400'
                                     }`}>
                                         {req.priority} Priority
                                     </div>
                                 </div>
-                                <div className="md:table-cell md:px-8 md:py-6 block mb-4 md:mb-0">
-                                    <div className="md:hidden text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Assigned Resource</div>
-                                    {req.assignedTo && req.assignedTo !== 'Unassigned' ? (
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500 border border-slate-200 shadow-sm">
-                                                {req.assignedTo.charAt(0).toUpperCase()}
-                                            </div>
-                                            <span className="text-gray-600 font-bold text-xs">{req.assignedTo}</span>
-                                        </div>
-                                    ) : (
-                                        <span className="text-gray-400 italic text-[11px] font-medium tracking-wide">Pending Dispatch</span>
-                                    )}
-                                </div>
-                                <div className="md:table-cell md:px-8 md:py-6 md:text-right block text-slate-400 font-mono text-[11px] pt-4 md:pt-6 border-t md:border-0 border-gray-50">
-                                    <div className="md:hidden text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Order Date</div>
-                                    {new Date(req.timestamp).toLocaleDateString()}
-                                    <div className="text-[9px] opacity-60 uppercase font-black">{new Date(req.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+
+                                <div className="min-w-[130px] text-right sm:text-left">
+                                    <div className="text-[11px] font-semibold text-slate-600 truncate max-w-[120px]">
+                                        {req.assignedTo && req.assignedTo !== 'Unassigned' ? req.assignedTo : 'Unassigned'}
+                                    </div>
+                                    <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Personnel</div>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+
+                            {/* Timeline & Status Block */}
+                            <div className="flex items-center justify-between sm:justify-end gap-8 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-50">
+                                <div className="text-left sm:text-right shrink-0">
+                                    <div className="text-[11px] font-semibold text-slate-500">{new Date(req.timestamp).toLocaleDateString()}</div>
+                                    <div className="text-[9px] text-slate-300 font-bold uppercase tracking-widest">{new Date(req.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                </div>
+                                <div className={`px-4 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest border shrink-0
+                                    ${req.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-200'}
+                                `}>
+                                    {req.status === 'Completed' ? 'Completed' : 'Pending'}
+                                </div>
+                            </div>
+
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>
