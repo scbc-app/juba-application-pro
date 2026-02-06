@@ -18,8 +18,6 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, appScriptUrl, setAppScri
   const [fullName, setFullName] = useState('');
   const [position, setPosition] = useState('');
   const [logoError, setLogoError] = useState(false);
-  const [showUrlSetup, setShowUrlSetup] = useState(false);
-  const [tempUrl, setTempUrl] = useState(appScriptUrl);
 
   useEffect(() => {
     const saved = localStorage.getItem('sc_remembered_creds');
@@ -39,8 +37,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, appScriptUrl, setAppScri
     e.preventDefault();
     
     if (!appScriptUrl || !appScriptUrl.startsWith('https://script.google.com')) {
-      setError("System connection required. Click the gear icon below.");
-      setShowUrlSetup(true);
+      setError("System connection error. Please contact your administrator.");
       return;
     }
 
@@ -77,6 +74,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, appScriptUrl, setAppScri
               setPassword('');
           } else {
               let safeRole: User['role'] = 'Inspector';
+              // Fix: Correctly reference rawUser.role instead of the variable being declared (rawRole)
               const rawRole = rawUser.role ? String(rawUser.role).trim().toLowerCase() : '';
               
               if (rawRole === 'superadmin') safeRole = 'SuperAdmin';
@@ -100,21 +98,10 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, appScriptUrl, setAppScri
       }
 
     } catch (err) {
-      setError("Cannot reach server. Check internet and URL.");
+      setError("Cannot reach server. Check internet connection.");
     } finally {
       setIsLoading(false); 
     }
-  };
-
-  const handleSaveUrl = () => {
-      if (tempUrl.startsWith('https://script.google.com')) {
-          setAppScriptUrl(tempUrl);
-          localStorage.setItem('safetyCheck_scriptUrl', tempUrl);
-          setShowUrlSetup(false);
-          setError('');
-      } else {
-          alert("Invalid URL. Must be a Google Apps Script endpoint.");
-      }
   };
 
   const isUrlValid = appScriptUrl && appScriptUrl.startsWith('https://script.google.com');
@@ -130,7 +117,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, appScriptUrl, setAppScri
                 <img src={settings.companyLogo} alt="Logo" className="h-6 sm:h-10 w-auto object-contain" onError={() => setLogoError(true)} />
              ) : (
                 <div className="flex items-center gap-1.5 px-2">
-                    <span className="font-bold text-slate-900 text-lg uppercase tracking-tight">SafetyCheck</span>
+                    <span className="font-bold text-slate-900 text-lg uppercase tracking-tight">Scbc</span>
                 </div>
              )}
           </div>
@@ -139,7 +126,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, appScriptUrl, setAppScri
             <h1 className="text-lg sm:text-2xl font-semibold text-white leading-tight uppercase">
                 {settings.companyName || 'Fleet Portal'}
             </h1>
-            <p className="text-slate-400 font-medium uppercase tracking-widest text-[9px] mt-1">Vehicle Inspection System</p>
+            <p className="text-slate-400 font-medium uppercase tracking-widest text-[9px] mt-1">Fleet Inspection System</p>
           </div>
         </div>
 
@@ -151,7 +138,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, appScriptUrl, setAppScri
                 </span>
             </div>
             <div className="hidden sm:block pt-4 border-t border-white/5">
-                <span className="text-[10px] text-slate-500 uppercase tracking-widest">© 2026 Fleet Safety</span>
+                <span className="text-[10px] text-slate-500 uppercase tracking-widest">© Scbc 2026</span>
             </div>
         </div>
       </div>
@@ -202,27 +189,6 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, appScriptUrl, setAppScri
             </div>
           </form>
         </div>
-        
-        {/* Setup Toggle */}
-        <button onClick={() => setShowUrlSetup(!showUrlSetup)} className="absolute bottom-6 right-6 p-3 text-slate-300 hover:text-slate-600 transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
-
-        {showUrlSetup && (
-            <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-8 animate-fadeIn">
-                <div className="w-full max-w-sm space-y-6">
-                    <h3 className="text-xl font-semibold text-slate-800">Connection Endpoint</h3>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Script URL</label>
-                        <input type="text" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono outline-none" placeholder="https://script.google.com/..." value={tempUrl} onChange={e => setTempUrl(e.target.value)} />
-                    </div>
-                    <div className="flex gap-3">
-                        <button onClick={() => setShowUrlSetup(false)} className="flex-1 py-3 text-xs font-semibold text-slate-500 hover:bg-slate-50 rounded-xl">Cancel</button>
-                        <button onClick={handleSaveUrl} className="flex-1 py-3 bg-slate-800 text-white font-semibold rounded-xl text-xs">Apply</button>
-                    </div>
-                </div>
-            </div>
-        )}
       </div>
     </div>
   );

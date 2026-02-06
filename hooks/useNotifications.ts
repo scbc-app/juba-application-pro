@@ -150,7 +150,7 @@ export const useNotifications = (appScriptUrl: string, currentUser: User | null,
             allAlerts.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
             const finalAlerts = allAlerts.slice(0, MAX_NOTIFICATIONS);
 
-            // Handle Pop-ups: Only for items not in notifiedRef AND not in dismissedRef
+            // Filter out items that have already been cleared/dismissed to stop popups
             const newForToast = finalAlerts.filter(a => 
                 !notifiedRef.current.includes(a.id) && 
                 !a.read && 
@@ -186,20 +186,18 @@ export const useNotifications = (appScriptUrl: string, currentUser: User | null,
 
     const handleClearAllNotifications = () => {
         const allIds = notifications.map(n => n.id);
-        saveState('dismissed', [...new Set([...dismissedRef.current, ...allIds])]);
-        saveState('notified', [...new Set([...notifiedRef.current, ...allIds])]);
+        const nextDismissed = [...new Set([...dismissedRef.current, ...allIds])];
+        const nextNotified = [...new Set([...notifiedRef.current, ...allIds])];
+        
+        saveState('dismissed', nextDismissed);
+        saveState('notified', nextNotified);
         setNotifications([]);
     };
 
-    // Fix: Added handleGlobalAcknowledge function to support system-wide notification dismissal
     const handleGlobalAcknowledge = async (id: string) => {
         if (!appScriptUrl || !currentUser) return;
-        
-        // Optimistic UI update - hide from current user session immediately
         handleDismissNotification(id);
-
         try {
-            // Sends a request to the backend to mark this specific notification as acknowledged system-wide
             await fetch(appScriptUrl, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -211,7 +209,7 @@ export const useNotifications = (appScriptUrl: string, currentUser: User | null,
             });
             showToast("Global acknowledgement synced.", "success");
         } catch (e) {
-            console.warn("Server acknowledgement failed, kept in local dismissal list.");
+            console.warn("Server acknowledgement failed.");
         }
     };
 
@@ -220,7 +218,7 @@ export const useNotifications = (appScriptUrl: string, currentUser: User | null,
         handleMarkNotificationRead,
         handleDismissNotification,
         handleClearAllNotifications,
-        handleGlobalAcknowledge, // Fix: Returning the new handler to match App.tsx usage
+        handleGlobalAcknowledge,
         fetchNotifications
     };
 };
