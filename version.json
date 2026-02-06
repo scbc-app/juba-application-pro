@@ -1,0 +1,16 @@
+{
+  "version": "1.0.1",
+  "buildDate": "2026-02-06T08:30:36.421Z",
+  "buildNumber": 1770366636422,
+  "environment": "development",
+  "features": [
+    "Live Updates",
+    "SolutionsDrawer Component",
+    "Mobile & Desktop Platforms",
+    "Enhanced PWA Support"
+  ],
+  "capacitor": {
+    "appId": "com.scbc.safetycheck",
+    "channel": "production"
+  }
+}
