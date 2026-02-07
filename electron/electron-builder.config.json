@@ -1,5 +1,5 @@
 {
-  "appId": "com.yourdoamnin.yourapp",
+  "appId": "com.scbc.safetycheck",
   "directories": {
     "buildResources": "resources"
   },
@@ -9,9 +9,13 @@
     "capacitor.config.*",
     "app/**/*"
   ],
-  "publish": {
-    "provider": "github"
-  },
+"publish": [
+  {
+    "provider": "github",
+    "owner": "scbc-app",
+    "repo": "juba-application-pro"
+  }
+],
   "nsis": {
     "allowElevation": true,
     "oneClick": false,

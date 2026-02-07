@@ -1,0 +1,6 @@
+{
+  "version": "3.3.0",
+  "buildDate": "2024-02-06",
+  "notes": "• Added automatic update notifications\n• Improved service worker for offline support\n• Enhanced PWA installation\n• Fixed bug with update prompts\n• Added required update functionality",
+  "required": false
+}

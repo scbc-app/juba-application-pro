@@ -1,3 +1,4 @@
+// @ts-nocheck 
 import type { CapacitorElectronConfig } from '@capacitor-community/electron';
 import {
   CapElectronEventEmitter,

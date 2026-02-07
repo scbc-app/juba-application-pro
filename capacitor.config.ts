@@ -1,12 +1,28 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
-const config: CapacitorConfig = {
+// Extend the CapacitorConfig type to include electron property
+interface CapacitorConfigWithElectron extends CapacitorConfig {
+  electron?: {
+    deepLinkingEnabled?: boolean;
+    customUrlScheme?: string;
+    trayIconAndMenuEnabled?: boolean;
+    splashScreenEnabled?: boolean;
+    splashScreenImageName?: string;
+    backgroundColor?: string;
+    windowsWebPreferences?: {
+      webSecurity?: boolean;
+      nodeIntegration?: boolean;
+      contextIsolation?: boolean;
+    };
+  };
+}
+
+const config: CapacitorConfigWithElectron = {
   appId: 'com.scbc.safetycheck',
   appName: 'SafetyCheckPro',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    // Live updates from deployed GitHub Pages
     url: 'https://scbc-app.github.io/juba-application-pro'
   },
   plugins: {
@@ -27,7 +43,6 @@ const config: CapacitorConfig = {
       splashImmersive: true
     }
   },
-  // ====== ADD ELECTRON CONFIGURATION ======
   electron: {
     deepLinkingEnabled: true,
     customUrlScheme: 'safetycheckpro',
@@ -41,7 +56,6 @@ const config: CapacitorConfig = {
       contextIsolation: false
     }
   }
-  // ====== END ELECTRON CONFIG ======
 };
 
 export default config;

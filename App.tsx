@@ -31,6 +31,7 @@ import OnboardingWizard from './components/ui/OnboardingWizard';
 import SystemTour from './components/ui/SystemTour'; 
 import InstallPwaPrompt from './components/ui/InstallPwaPrompt';
 import SolutionsDrawer from './components/ui/SolutionsDrawer';
+import UpdateNotification from './src/components/UpdateNotification';
 
 // Views
 import LoginView from './views/LoginView';
@@ -371,6 +372,9 @@ const App = () => {
       />
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {showTour && <SystemTour onComplete={() => setShowTour(false)} />}
+      
+      {/* AUTO-UPDATE NOTIFICATION */}
+      <UpdateNotification />
 
       {isProfileModalOpen && (
           <ProfileModal user={currentUser} settings={settings} appScriptUrl={appScriptUrl} onClose={() => setIsProfileModalOpen(false)} showToast={showToast} onUpdateSuccess={(u) => setCurrentUser(u)} onLogout={() => { setIsProfileModalOpen(false); handleLogout(); }} />
@@ -417,9 +421,11 @@ const App = () => {
                   )}
               </div>
               <button onClick={() => { setActiveModule('overview'); setViewMode('dashboard'); }} className="flex flex-col items-center hover:opacity-80 transition-opacity absolute left-1/2 -translate-x-1/2">
-                  <h1 className="text-sm sm:text-base font-black text-slate-900 tracking-tighter leading-none uppercase">{settings.companyName || 'SAFETYCHECK PRO'}</h1>
-                  <span className="text-[7px] font-black text-indigo-600 tracking-[0.4em] mt-1 hidden sm:block">CORE SYSTEM v3.2</span>
-              </button>
+  <h1 className="text-sm sm:text-base font-black text-slate-900 tracking-tighter leading-none uppercase">{settings.companyName || 'SAFETYCHECK PRO'}</h1>
+  <span className="text-[7px] font-black text-indigo-600 tracking-[0.4em] mt-1 hidden sm:block">
+    CORE SYSTEM v{localStorage.getItem('app-version') || '3.2.0'}
+  </span>
+</button>
               <div className="flex items-center gap-2">
                   <NotificationCenter id="notification-bell" notifications={notifications} onMarkAsRead={(id) => handleMarkNotificationRead(id, handleNavigate)} onDismiss={handleDismissNotification} onClearAll={handleClearAllNotifications} onAcknowledge={handleGlobalAcknowledge} canAcknowledge={isAdmin} />
                   <button id="profile-trigger" onClick={() => setIsProfileModalOpen(true)} className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
