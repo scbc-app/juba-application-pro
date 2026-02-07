@@ -374,7 +374,7 @@ const App = () => {
       {showTour && <SystemTour onComplete={() => setShowTour(false)} />}
       
       {/* AUTO-UPDATE NOTIFICATION */}
-      <UpdateNotification />
+      {false && <UpdateNotification />}
 
       {isProfileModalOpen && (
           <ProfileModal user={currentUser} settings={settings} appScriptUrl={appScriptUrl} onClose={() => setIsProfileModalOpen(false)} showToast={showToast} onUpdateSuccess={(u) => setCurrentUser(u)} onLogout={() => { setIsProfileModalOpen(false); handleLogout(); }} />
@@ -493,6 +493,9 @@ const App = () => {
               {activeModule === 'petroleum' ? <PrintablePetroleumReport data={selectedReportData} settings={settings} /> : activeModule === 'petroleum_v2' ? <PrintablePetroleumV2Report data={selectedReportData} settings={settings} /> : activeModule === 'acid' ? <PrintableAcidReport data={selectedReportData} settings={settings} /> : <PrintableGeneralReport data={selectedReportData} settings={settings} />}
           </ReportViewerModal>
       )}
+
+
+
     </div>
   );
 };
